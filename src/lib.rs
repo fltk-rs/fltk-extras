@@ -1,3 +1,6 @@
+#![doc = include_str!("../README.md")]
+#![allow(clippy::needless_doctest_main)]
+
 pub mod button;
 pub mod dial;
 pub mod slider;

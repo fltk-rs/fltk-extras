@@ -1,5 +1,5 @@
 use fltk::{prelude::*, *};
-use svg_widgets::slider::*;
+use fltk_extras::slider::*;
 
 fn main() {
     let a = app::App::default();

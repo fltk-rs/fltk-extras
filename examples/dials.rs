@@ -1,5 +1,5 @@
 use fltk::{prelude::*, *};
-use svg_widgets::dial::*;
+use fltk_extras::dial::*;
 
 fn main() {
     let a = app::App::default();

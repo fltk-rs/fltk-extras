@@ -1,5 +1,5 @@
 use fltk::{prelude::*, *};
-use svg_widgets::button::*;
+use fltk_extras::button::*;
 
 fn main() {
     let a = app::App::default();
