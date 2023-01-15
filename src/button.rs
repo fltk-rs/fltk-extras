@@ -204,20 +204,21 @@ impl CheckButton {
         let mut btn = button::ToggleButton::new(x, y, w, 14, None)
             .with_label(label)
             .with_align(Align::Right | Align::Inside);
-        btn.set_frame(FrameType::FlatBox);
-        btn.set_down_frame(FrameType::FlatBox);
+        btn.set_frame(FrameType::NoBox);
+        btn.set_down_frame(FrameType::NoBox);
         btn.clear_visible_focus();
         btn.draw(|b| {
+            draw::set_line_style(draw::LineStyle::Solid, 2);
             draw::draw_box(
-                FrameType::RFlatBox,
+                FrameType::RoundedFrame,
                 b.x(),
-                b.y() + 20 / 2,
+                b.y() - 10 + b.h() / 2,
                 20,
                 20,
-                Color::White,
+                GREEN.darker(),
             );
             if b.value() {
-                draw::draw_check(b.x(), b.y() + 20 / 2, 20, 20, GREEN.darker());
+                draw::draw_check(b.x() + 1, b.y() - 9 + b.h() / 2, 18, 18, GREEN.darker());
             }
         });
         Self { btn }
@@ -239,3 +240,50 @@ impl CheckButton {
 }
 
 fltk::widget_extends!(CheckButton, button::ToggleButton, btn);
+
+#[derive(Clone)]
+pub struct RadioButton {
+    btn: button::RadioButton,
+}
+
+impl Default for RadioButton {
+    fn default() -> Self {
+        RadioButton::new(0, 0, 0, 0, "")
+    }
+}
+
+impl RadioButton {
+    pub fn new(x: i32, y: i32, w: i32, _h: i32, label: &str) -> Self {
+        let mut btn = button::RadioButton::new(x, y, w, 14, None)
+            .with_label(label)
+            .with_align(Align::Right | Align::Inside);
+        btn.set_frame(FrameType::NoBox);
+        btn.set_down_frame(FrameType::NoBox);
+        btn.clear_visible_focus();
+        btn.draw(|b| {
+            draw::set_line_style(draw::LineStyle::Solid, 2);
+            draw::set_draw_color(GREEN.darker());
+            draw::draw_arc(b.x(), b.y() - 10 + b.h() / 2, 20, 20, 0., 360.);
+            if b.value() {
+                draw::draw_pie(b.x() + 5, b.y() - 5 + b.h() / 2, 10, 10, 0., 360.);
+            }
+        });
+        Self { btn }
+    }
+    pub fn set_value(&mut self, val: bool) {
+        self.btn.set_value(val);
+        app::redraw();
+    }
+    pub fn value(&self) -> bool {
+        self.btn.value()
+    }
+    pub fn set_callback<F: 'static + FnMut(&mut Self)>(&mut self, mut cb: F) {
+        let mut s = self.clone();
+        self.btn.set_callback(move |_| {
+            cb(&mut s);
+            app::redraw();
+        });
+    }
+}
+
+fltk::widget_extends!(RadioButton, button::RadioButton, btn);

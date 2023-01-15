@@ -73,6 +73,13 @@ impl Dial {
     pub fn modifiable(&mut self, val: bool) {
         self.modifiable.store(val, Ordering::Relaxed);
     }
+    pub fn set_callback<F: 'static + FnMut(&mut Self)>(&mut self, mut cb: F) {
+        let mut s = self.clone();
+        self.dial.set_callback(move |_| {
+            cb(&mut s);
+            app::redraw();
+        });
+    }
 }
 
 fltk::widget_extends!(Dial, valuator::FillDial, dial);
@@ -98,8 +105,7 @@ impl HalfDial {
             .with_align(Align::Top)
             .column();
         main_wid.set_label_size(app::font_size() + 3);
-        let mut value_frame =
-            frame::Frame::default().with_label("0");
+        let mut value_frame = frame::Frame::default().with_label("0");
         value_frame.set_label_size(app::font_size() + 12);
 
         main_wid.end();
@@ -111,7 +117,7 @@ impl HalfDial {
             let parent_col = parent.color();
             draw::set_draw_color(Color::color_average(parent_col, Color::Foreground, 0.9));
             draw::draw_pie(w.x(), w.y(), w.w(), w.h(), -45., 225.);
-            draw::set_draw_color(w.selection_color());
+            draw::set_draw_color(RED);
             let val = value_c.load(Ordering::Relaxed);
             let val = if val > 100 { 100 } else { val };
             draw::draw_pie(
