@@ -25,7 +25,7 @@ impl Toggle {
         btn.set_down_frame(FrameType::FlatBox);
         btn.set_label_color(Color::White);
         btn.set_color(RED);
-        btn.set_selection_color(GREEN.darker());
+        btn.set_selection_color(GREEN);
         btn.clear_visible_focus();
         btn.handle(|b, ev| match ev {
             Event::Push => {
@@ -88,7 +88,7 @@ impl RoundToggle {
         btn.set_down_frame(FrameType::RFlatBox);
         btn.set_label_color(Color::White);
         btn.set_color(RED);
-        btn.set_selection_color(GREEN.darker());
+        btn.set_selection_color(GREEN);
         btn.clear_visible_focus();
         btn.handle(|b, ev| match ev {
             Event::Push => {
@@ -146,7 +146,7 @@ impl HollowRoundToggle {
             .with_align(Align::Left);
         btn.set_frame(FrameType::NoBox);
         btn.set_down_frame(FrameType::NoBox);
-        btn.set_selection_color(GREEN.darker());
+        btn.set_selection_color(GREEN);
         btn.set_color(RED);
         btn.clear_visible_focus();
         btn.draw(|b| {
@@ -215,10 +215,10 @@ impl CheckButton {
                 b.y() - 10 + b.h() / 2,
                 20,
                 20,
-                GREEN.darker(),
+                GREEN,
             );
             if b.value() {
-                draw::draw_check(b.x() + 1, b.y() - 9 + b.h() / 2, 18, 18, GREEN.darker());
+                draw::draw_check(b.x() + 1, b.y() - 9 + b.h() / 2, 18, 18, GREEN);
             }
         });
         Self { btn }
@@ -262,7 +262,7 @@ impl RadioButton {
         btn.clear_visible_focus();
         btn.draw(|b| {
             draw::set_line_style(draw::LineStyle::Solid, 2);
-            draw::set_draw_color(GREEN.darker());
+            draw::set_draw_color(GREEN);
             draw::draw_arc(b.x(), b.y() - 10 + b.h() / 2, 20, 20, 0., 360.);
             if b.value() {
                 draw::draw_pie(b.x() + 5, b.y() - 5 + b.h() / 2, 10, 10, 0., 360.);

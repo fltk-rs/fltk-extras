@@ -107,7 +107,7 @@ impl HalfDial {
         main_wid.set_label_size(app::font_size() + 3);
         let mut value_frame = frame::Frame::default().with_label("0");
         value_frame.set_label_size(app::font_size() + 12);
-
+        main_wid.set_selection_color(RED);
         main_wid.end();
         main_wid.set_size(&value_frame, 30);
         let value = Arc::new(value);
@@ -117,7 +117,7 @@ impl HalfDial {
             let parent_col = parent.color();
             draw::set_draw_color(Color::color_average(parent_col, Color::Foreground, 0.9));
             draw::draw_pie(w.x(), w.y(), w.w(), w.h(), -45., 225.);
-            draw::set_draw_color(RED);
+            draw::set_draw_color(w.selection_color());
             let val = value_c.load(Ordering::Relaxed);
             let val = if val > 100 { 100 } else { val };
             draw::draw_pie(
@@ -130,10 +130,10 @@ impl HalfDial {
             );
             draw::set_draw_color(parent_col);
             draw::draw_pie(
-                w.x() + (w.w() / 6),
-                w.y() + (w.h() / 6),
-                w.w() * 2 / 3,
-                w.h() * 2 / 3,
+                w.x() + (w.w() / 4),
+                w.y() + (w.h() / 4),
+                w.w() * 2 / 4,
+                w.h() * 2 / 4,
                 0.,
                 360.,
             );
