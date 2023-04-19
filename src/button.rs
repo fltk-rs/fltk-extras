@@ -287,3 +287,44 @@ impl RadioButton {
 }
 
 fltk::widget_extends!(RadioButton, button::RadioButton, btn);
+
+#[derive(Clone)]
+pub struct HoverButton {
+    btn: button::Button,
+}
+
+impl Default for HoverButton {
+    fn default() -> Self {
+        HoverButton::new(0, 0, 0, 0, "")
+    }
+}
+
+impl HoverButton {
+    pub fn new(x: i32, y: i32, w: i32, h: i32, label: &str) -> Self {
+        let mut btn = button::Button::new(x, y, w, h, None).with_label(label);
+        btn.set_color(SEL_BLUE);
+        btn.super_draw(false);
+        btn.draw(|b| {
+            draw::set_draw_color(b.color());
+            draw::draw_rectf(b.x(), b.y(), b.w(), b.h());
+            draw::set_draw_color(b.label_color());
+            draw::draw_text2(&b.label(), b.x(), b.y(), b.w(), b.h(), Align::Center);
+        });
+        btn.handle(|b, ev| match ev {
+            Event::Enter | Event::Released => {
+                b.set_color(SEL_BLUE.lighter());
+                b.redraw();
+                true
+            }
+            Event::Leave | Event::Push => {
+                b.set_color(SEL_BLUE);
+                b.redraw();
+                true
+            }
+            _ => false,
+        });
+        Self { btn }
+    }
+}
+
+fltk::widget_extends!(HoverButton, button::Button, btn);
