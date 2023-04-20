@@ -326,6 +326,10 @@ impl HoverButton {
         });
         Self { btn }
     }
+    pub fn set_color(&mut self, col: Color) {
+        self.btn.set_color(col);
+        self.btn.set_selection_color(col);
+    }
 }
 
 fltk::widget_extends!(HoverButton, button::Button, btn);
