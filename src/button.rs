@@ -303,6 +303,7 @@ impl HoverButton {
     pub fn new(x: i32, y: i32, w: i32, h: i32, label: &str) -> Self {
         let mut btn = button::Button::new(x, y, w, h, None).with_label(label);
         btn.set_color(SEL_BLUE);
+        btn.set_selection_color(SEL_BLUE);
         btn.super_draw(false);
         btn.draw(|b| {
             draw::set_draw_color(b.color());
@@ -312,12 +313,12 @@ impl HoverButton {
         });
         btn.handle(|b, ev| match ev {
             Event::Enter | Event::Released => {
-                b.set_color(SEL_BLUE.lighter());
+                b.set_color(b.selection_color().lighter());
                 b.redraw();
                 true
             }
             Event::Leave | Event::Push => {
-                b.set_color(SEL_BLUE);
+                b.set_color(b.selection_color());
                 b.redraw();
                 true
             }
