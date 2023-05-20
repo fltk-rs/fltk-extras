@@ -1,5 +1,7 @@
 use crate::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 #[derive(Clone)]
 pub struct Toggle {
@@ -177,7 +179,7 @@ impl HollowRoundToggle {
             let mut image = image::SvgImage::from_data(&svg).unwrap();
             image.scale(18, 18, false, true);
             if b.value() {
-                image.draw(b.x() + b.w() - 3 - 18, b.y() + ((b.h() - 18)/2), 18, 18);
+                image.draw(b.x() + b.w() - 6 - 18, b.y() + ((b.h() - 18)/2), 18, 18);
             } else {
                 image.draw(b.x() + 3, b.y() + ((b.h() - 18)/2), 18, 18);
             }
@@ -187,6 +189,64 @@ impl HollowRoundToggle {
 }
 
 fltk::widget_extends!(HollowRoundToggle, button::ToggleButton, btn);
+
+const ON_COLOR: Color = Color::from_u32(0x33aa33);
+const OFF_COLOR: Color = Color::from_u32(0x444444);
+
+pub struct RoundToggle2 {
+    p: group::Pack,
+    toggle: button::ToggleButton,
+}
+
+impl RoundToggle2 {
+    pub fn new(x: i32, y: i32, w: i32, h: i32, label: &str) -> Self {
+        let p = group::Pack::new(x, y, w, h, None)
+            .with_label(label)
+            .with_align(Align::Left);
+        let mut toggle = button::ToggleButton::new(x, y, w, 30, "");
+        toggle.draw(|t| {
+            draw::set_draw_color(Color::from_u32(0xeeeeee));
+            draw::draw_pie(
+                t.x() - 10 + (t.w() - t.h() + 20) * t.value() as i32,
+                t.y(),
+                t.h(),
+                t.h(),
+                0.,
+                360.,
+            );
+        });
+        toggle.set_callback(|_t| app::redraw());
+        toggle.set_frame(FrameType::RFlatBox);
+        toggle.set_color(RED);
+        toggle.set_selection_color(GREEN);
+        toggle.clear_visible_focus();
+        p.end();
+
+        RoundToggle2 { p, toggle }
+    }
+
+    pub fn set_callback<F: FnMut(&mut button::ToggleButton) + 'static>(&mut self, mut cb: F) {
+        self.toggle.set_callback(move |t| {
+            if t.is_set() {
+                t.set_align(Align::Inside | Align::Right);
+                t.set_label_color(Color::from_u32(0xeeeeee));
+            } else {
+                t.set_align(Align::Inside | Align::Left);
+                t.set_label_color(Color::from_u32(0xeeeeee));
+            }
+            app::redraw();
+            cb(t);
+        });
+    }
+}
+
+impl Default for RoundToggle2 {
+    fn default() -> Self {
+        RoundToggle2::new(0, 0, 0, 0, "")
+    }
+}
+
+widget_extends!(RoundToggle2, button::ToggleButton, toggle);
 
 #[derive(Clone)]
 pub struct CheckButton {
@@ -291,6 +351,7 @@ fltk::widget_extends!(RadioButton, button::RadioButton, btn);
 #[derive(Clone)]
 pub struct HoverButton {
     btn: button::Button,
+    col: Rc<RefCell<Color>>,
 }
 
 impl Default for HoverButton {
@@ -303,7 +364,6 @@ impl HoverButton {
     pub fn new(x: i32, y: i32, w: i32, h: i32, label: &str) -> Self {
         let mut btn = button::Button::new(x, y, w, h, None).with_label(label);
         btn.set_color(SEL_BLUE);
-        btn.set_selection_color(SEL_BLUE);
         btn.super_draw(false);
         btn.draw(|b| {
             draw::set_draw_color(b.color());
@@ -311,24 +371,28 @@ impl HoverButton {
             draw::set_draw_color(b.label_color());
             draw::draw_text2(&b.label(), b.x(), b.y(), b.w(), b.h(), Align::Center);
         });
-        btn.handle(|b, ev| match ev {
-            Event::Enter | Event::Released => {
-                b.set_color(b.selection_color().lighter());
-                b.redraw();
-                true
+        let col = Rc::new(RefCell::new(SEL_BLUE));
+        btn.handle({
+            let col = col.clone();
+            move |b, ev| match ev {
+                Event::Enter | Event::Released => {
+                    b.set_color(col.borrow().lighter());
+                    b.redraw();
+                    true
+                }
+                Event::Leave | Event::Push => {
+                    b.set_color(*col.borrow());
+                    b.redraw();
+                    true
+                }
+                _ => false,
             }
-            Event::Leave | Event::Push => {
-                b.set_color(b.selection_color());
-                b.redraw();
-                true
-            }
-            _ => false,
         });
-        Self { btn }
+        Self { btn, col }
     }
     pub fn set_color(&mut self, col: Color) {
+        *self.col.borrow_mut() = col;
         self.btn.set_color(col);
-        self.btn.set_selection_color(col);
     }
 }
 

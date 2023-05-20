@@ -23,6 +23,7 @@ fn main() {
     CheckButton::default().with_label("Done?");
     HollowRoundToggle::default();
     RadioButton::default().with_label("Radio");
+    HoverButton::default().with_label("Hover");
     col.end();
     w.end();
     w.show();

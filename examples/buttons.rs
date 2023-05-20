@@ -8,11 +8,12 @@ fn main() {
     app::set_background2_color(128, 128, 128);
     let mut w = window::Window::default().with_size(400, 400);
     let col = group::Flex::default()
-        .with_size(80, 200)
+        .with_size(80, 300)
         .column()
         .center_of_parent();
     Toggle::default();
     RoundToggle::default();
+    RoundToggle2::default();
     CheckButton::default().with_label("Done?");
     HollowRoundToggle::default();
     RadioButton::default().with_label("Radio");
