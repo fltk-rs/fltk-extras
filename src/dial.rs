@@ -109,7 +109,7 @@ impl HalfDial {
         value_frame.set_label_size(app::font_size() + 12);
         main_wid.set_selection_color(RED);
         main_wid.end();
-        main_wid.set_size(&value_frame, 30);
+        main_wid.fixed(&value_frame, 30);
         let value = Arc::new(value);
         let value_c = value.clone();
         main_wid.draw(move |w| {

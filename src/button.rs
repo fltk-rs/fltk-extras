@@ -190,11 +190,10 @@ impl HollowRoundToggle {
 
 fltk::widget_extends!(HollowRoundToggle, button::ToggleButton, btn);
 
-const ON_COLOR: Color = Color::from_u32(0x33aa33);
-const OFF_COLOR: Color = Color::from_u32(0x444444);
+// const ON_COLOR: Color = Color::from_u32(0x33aa33);
+// const OFF_COLOR: Color = Color::from_u32(0x444444);
 
 pub struct RoundToggle2 {
-    p: group::Pack,
     toggle: button::ToggleButton,
 }
 
@@ -222,7 +221,7 @@ impl RoundToggle2 {
         toggle.clear_visible_focus();
         p.end();
 
-        RoundToggle2 { p, toggle }
+        RoundToggle2 { toggle }
     }
 
     pub fn set_callback<F: FnMut(&mut button::ToggleButton) + 'static>(&mut self, mut cb: F) {

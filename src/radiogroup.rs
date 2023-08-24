@@ -1,9 +1,7 @@
 use crate::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
-use std::cell::RefCell;
-use std::rc::Rc;
 use tiny_skia::{
-    FillRule, LineCap, Paint, Path, PathBuilder, Pixmap, Stroke, StrokeDash, Transform,
+    FillRule, LineCap, Paint, Path, PathBuilder, Pixmap, Stroke, Transform,
 };
 
 struct Position {
@@ -103,7 +101,7 @@ const MID_RECT_DOWN: i32 = 103;
 const RIGHT_RECT_UP: i32 = 104;
 const RIGHT_RECT_DOWN: i32 = 105;
 
-fn left_rect_up(x: i32, y: i32, w: i32, h: i32, c: Color) {
+fn left_rect_up(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     if w < 1 || h < 1 {
         return;
     }
@@ -112,18 +110,18 @@ fn left_rect_up(x: i32, y: i32, w: i32, h: i32, c: Color) {
     let mut paint = Paint::default();
     paint.set_color_rgba8(r, g, b, 255);
     paint.anti_alias = true;
-    let mut pb = PathBuilder::new();
+    let pb = PathBuilder::new();
     let path = rounded_rect(pb, w as _, h as _, [15., 0., 0., 15.]);
     let mut pixmap = Pixmap::new(w as _, h as _).unwrap();
     let mut stroke = Stroke::default();
     stroke.width = 2.0;
     stroke.line_cap = LineCap::Round;
     pixmap.stroke_path(&path, &paint, &stroke, Transform::identity(), None);
-    let mut img = image::RgbImage::new(&pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
+    let mut img = image::RgbImage::new(pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
     img.draw(x, y, w, h);
 }
 
-fn left_rect_down(x: i32, y: i32, w: i32, h: i32, c: Color) {
+fn left_rect_down(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     if w < 1 || h < 1 {
         return;
     }
@@ -132,7 +130,7 @@ fn left_rect_down(x: i32, y: i32, w: i32, h: i32, c: Color) {
     let mut paint = Paint::default();
     paint.set_color_rgba8(r, g, b, 255);
     paint.anti_alias = true;
-    let mut pb = PathBuilder::new();
+    let pb = PathBuilder::new();
     let path = rounded_rect(pb, w as _, h as _, [15., 0., 0., 15.]);
     let mut pixmap = Pixmap::new(w as _, h as _).unwrap();
     pixmap.fill_path(
@@ -142,11 +140,11 @@ fn left_rect_down(x: i32, y: i32, w: i32, h: i32, c: Color) {
         Transform::identity(),
         None,
     );
-    let mut img = image::RgbImage::new(&pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
+    let mut img = image::RgbImage::new(pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
     img.draw(x, y, w, h);
 }
 
-fn mid_rect_up(x: i32, y: i32, w: i32, h: i32, c: Color) {
+fn mid_rect_up(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     if w < 1 || h < 1 {
         return;
     }
@@ -155,18 +153,18 @@ fn mid_rect_up(x: i32, y: i32, w: i32, h: i32, c: Color) {
     let mut paint = Paint::default();
     paint.set_color_rgba8(r, g, b, 255);
     paint.anti_alias = true;
-    let mut pb = PathBuilder::new();
+    let pb = PathBuilder::new();
     let path = rounded_rect(pb, w as _, h as _, [0., 0., 0., 0.]);
     let mut pixmap = Pixmap::new(w as _, h as _).unwrap();
     let mut stroke = Stroke::default();
     stroke.width = 2.0;
     stroke.line_cap = LineCap::Round;
     pixmap.stroke_path(&path, &paint, &stroke, Transform::identity(), None);
-    let mut img = image::RgbImage::new(&pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
+    let mut img = image::RgbImage::new(pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
     img.draw(x, y, w, h);
 }
 
-fn mid_rect_down(x: i32, y: i32, w: i32, h: i32, c: Color) {
+fn mid_rect_down(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     if w < 1 || h < 1 {
         return;
     }
@@ -175,7 +173,7 @@ fn mid_rect_down(x: i32, y: i32, w: i32, h: i32, c: Color) {
     let mut paint = Paint::default();
     paint.set_color_rgba8(r, g, b, 255);
     paint.anti_alias = true;
-    let mut pb = PathBuilder::new();
+    let pb = PathBuilder::new();
     let path = rounded_rect(pb, w as _, h as _, [0., 0., 0., 0.]);
     let mut pixmap = Pixmap::new(w as _, h as _).unwrap();
     pixmap.fill_path(
@@ -185,11 +183,11 @@ fn mid_rect_down(x: i32, y: i32, w: i32, h: i32, c: Color) {
         Transform::identity(),
         None,
     );
-    let mut img = image::RgbImage::new(&pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
+    let mut img = image::RgbImage::new(pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
     img.draw(x, y, w, h);
 }
 
-fn right_rect_up(x: i32, y: i32, w: i32, h: i32, c: Color) {
+fn right_rect_up(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     if w < 1 || h < 1 {
         return;
     }
@@ -198,18 +196,18 @@ fn right_rect_up(x: i32, y: i32, w: i32, h: i32, c: Color) {
     let mut paint = Paint::default();
     paint.set_color_rgba8(r, g, b, 255);
     paint.anti_alias = true;
-    let mut pb = PathBuilder::new();
+    let pb = PathBuilder::new();
     let path = rounded_rect(pb, w as _, h as _, [0., 15., 15., 0.]);
     let mut pixmap = Pixmap::new(w as _, h as _).unwrap();
     let mut stroke = Stroke::default();
     stroke.width = 2.0;
     stroke.line_cap = LineCap::Round;
     pixmap.stroke_path(&path, &paint, &stroke, Transform::identity(), None);
-    let mut img = image::RgbImage::new(&pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
+    let mut img = image::RgbImage::new(pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
     img.draw(x, y, w, h);
 }
 
-fn right_rect_down(x: i32, y: i32, w: i32, h: i32, c: Color) {
+fn right_rect_down(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     if w < 1 || h < 1 {
         return;
     }
@@ -218,7 +216,7 @@ fn right_rect_down(x: i32, y: i32, w: i32, h: i32, c: Color) {
     let mut paint = Paint::default();
     paint.set_color_rgba8(r, g, b, 255);
     paint.anti_alias = true;
-    let mut pb = PathBuilder::new();
+    let pb = PathBuilder::new();
     let path = rounded_rect(pb, w as _, h as _, [0., 15., 15., 0.]);
     let mut pixmap = Pixmap::new(w as _, h as _).unwrap();
     pixmap.fill_path(
@@ -228,7 +226,7 @@ fn right_rect_down(x: i32, y: i32, w: i32, h: i32, c: Color) {
         Transform::identity(),
         None,
     );
-    let mut img = image::RgbImage::new(&pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
+    let mut img = image::RgbImage::new(pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
     img.draw(x, y, w, h);
 }
 
@@ -292,7 +290,7 @@ impl RadioGroup {
             4,
             4,
         );
-        let mut f = group::Flex::new(x, y, w, h, None)
+        let f = group::Flex::new(x, y, w, h, None)
             .with_label(label)
             .with_type(group::FlexType::Row);
         Self { f }
@@ -301,7 +299,7 @@ impl RadioGroup {
         self.f.end();
         let size = self.f.children() - 1;
         for i in 0..=size {
-            let mut child = self.f.child(i).unwrap();
+            let child = self.f.child(i).unwrap();
             let mut child = button::RadioButton::from_dyn_widget(&child).unwrap();
             child.set_callback(cb);
             child.clear_visible_focus();
