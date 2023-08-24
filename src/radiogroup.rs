@@ -1,8 +1,6 @@
 use crate::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
-use tiny_skia::{
-    FillRule, LineCap, Paint, Path, PathBuilder, Pixmap, Stroke, Transform,
-};
+use tiny_skia::{FillRule, LineCap, Paint, Path, PathBuilder, Pixmap, Stroke, Transform};
 
 struct Position {
     x: f32,
@@ -113,9 +111,11 @@ fn left_rect_up(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     let pb = PathBuilder::new();
     let path = rounded_rect(pb, w as _, h as _, [15., 0., 0., 15.]);
     let mut pixmap = Pixmap::new(w as _, h as _).unwrap();
-    let mut stroke = Stroke::default();
-    stroke.width = 2.0;
-    stroke.line_cap = LineCap::Round;
+    let stroke = Stroke {
+        width: 2.0,
+        line_cap: LineCap::Round,
+        ..Default::default()
+    };
     pixmap.stroke_path(&path, &paint, &stroke, Transform::identity(), None);
     let mut img = image::RgbImage::new(pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
     img.draw(x, y, w, h);
@@ -156,9 +156,11 @@ fn mid_rect_up(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     let pb = PathBuilder::new();
     let path = rounded_rect(pb, w as _, h as _, [0., 0., 0., 0.]);
     let mut pixmap = Pixmap::new(w as _, h as _).unwrap();
-    let mut stroke = Stroke::default();
-    stroke.width = 2.0;
-    stroke.line_cap = LineCap::Round;
+    let stroke = Stroke {
+        width: 2.0,
+        line_cap: LineCap::Round,
+        ..Default::default()
+    };
     pixmap.stroke_path(&path, &paint, &stroke, Transform::identity(), None);
     let mut img = image::RgbImage::new(pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
     img.draw(x, y, w, h);
@@ -199,9 +201,11 @@ fn right_rect_up(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     let pb = PathBuilder::new();
     let path = rounded_rect(pb, w as _, h as _, [0., 15., 15., 0.]);
     let mut pixmap = Pixmap::new(w as _, h as _).unwrap();
-    let mut stroke = Stroke::default();
-    stroke.width = 2.0;
-    stroke.line_cap = LineCap::Round;
+    let stroke = Stroke {
+        width: 2.0,
+        line_cap: LineCap::Round,
+        ..Default::default()
+    };
     pixmap.stroke_path(&path, &paint, &stroke, Transform::identity(), None);
     let mut img = image::RgbImage::new(pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
     img.draw(x, y, w, h);
