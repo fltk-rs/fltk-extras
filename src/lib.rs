@@ -4,5 +4,6 @@
 pub mod button;
 pub mod card;
 pub mod dial;
+pub mod radiogroup;
 pub mod slider;
 mod styles;
