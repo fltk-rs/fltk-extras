@@ -113,4 +113,4 @@ fn main() {
 }
 ```
 
-![s](https://github.com/fltk-rs/fltk-extras/assets/37966791/19f3a07e-c262-4f5e-a2e8-a16ba6acc8aa)
+![ss](https://github.com/fltk-rs/fltk-extras/assets/37966791/a03e1912-7658-48be-a354-2b588b417fd8)
