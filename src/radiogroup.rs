@@ -1,11 +1,14 @@
 use crate::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
 use tiny_skia::{FillRule, LineCap, Paint, Path, PathBuilder, Pixmap, Stroke, Transform};
+use std::sync::atomic::{AtomicU8, Ordering};
 
 struct Position {
     x: f32,
     y: f32,
 }
+
+static ANGLE: AtomicU8 = AtomicU8::new(15);
 
 // copied with some modification from: https://gitlab.com/snakedye/snui/-/blob/master/snui/src/widgets/shapes/rectangle.rs?ref_type=heads
 pub fn rounded_rect(mut pb: PathBuilder, width: f32, height: f32, radius: [f32; 4]) -> Path {
@@ -105,11 +108,12 @@ fn left_rect_up(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     }
     let c = SEL_BLUE;
     let (r, g, b) = c.to_rgb();
+    let angle = ANGLE.load(Ordering::Relaxed) as f32;
     let mut paint = Paint::default();
     paint.set_color_rgba8(r, g, b, 255);
     paint.anti_alias = true;
     let pb = PathBuilder::new();
-    let path = rounded_rect(pb, w as _, h as _, [15., 0., 0., 15.]);
+    let path = rounded_rect(pb, w as _, h as _, [angle, 0., 0., angle]);
     let mut pixmap = Pixmap::new(w as _, h as _).unwrap();
     let stroke = Stroke {
         width: 2.0,
@@ -127,11 +131,12 @@ fn left_rect_down(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     }
     let c = SEL_BLUE;
     let (r, g, b) = c.to_rgb();
+    let angle = ANGLE.load(Ordering::Relaxed) as f32;
     let mut paint = Paint::default();
     paint.set_color_rgba8(r, g, b, 255);
     paint.anti_alias = true;
     let pb = PathBuilder::new();
-    let path = rounded_rect(pb, w as _, h as _, [15., 0., 0., 15.]);
+    let path = rounded_rect(pb, w as _, h as _, [angle, 0., 0., angle]);
     let mut pixmap = Pixmap::new(w as _, h as _).unwrap();
     pixmap.fill_path(
         &path,
@@ -195,11 +200,12 @@ fn right_rect_up(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     }
     let c = SEL_BLUE;
     let (r, g, b) = c.to_rgb();
+    let angle = ANGLE.load(Ordering::Relaxed) as f32;
     let mut paint = Paint::default();
     paint.set_color_rgba8(r, g, b, 255);
     paint.anti_alias = true;
     let pb = PathBuilder::new();
-    let path = rounded_rect(pb, w as _, h as _, [0., 15., 15., 0.]);
+    let path = rounded_rect(pb, w as _, h as _, [0., angle, angle, 0.]);
     let mut pixmap = Pixmap::new(w as _, h as _).unwrap();
     let stroke = Stroke {
         width: 2.0,
@@ -217,11 +223,12 @@ fn right_rect_down(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     }
     let c = SEL_BLUE;
     let (r, g, b) = c.to_rgb();
+    let angle = ANGLE.load(Ordering::Relaxed) as f32;
     let mut paint = Paint::default();
     paint.set_color_rgba8(r, g, b, 255);
     paint.anti_alias = true;
     let pb = PathBuilder::new();
-    let path = rounded_rect(pb, w as _, h as _, [0., 15., 15., 0.]);
+    let path = rounded_rect(pb, w as _, h as _, [0., angle, angle, 0.]);
     let mut pixmap = Pixmap::new(w as _, h as _).unwrap();
     pixmap.fill_path(
         &path,
@@ -299,14 +306,20 @@ impl RadioGroup {
             .with_type(group::FlexType::Row);
         Self { f }
     }
+    pub fn set_radius(&mut self, r: f32) {
+        ANGLE.store(r as u8, Ordering::Relaxed);
+    }
+    pub fn radius(&self) -> f32 {
+        ANGLE.load(Ordering::Relaxed) as f32
+    }
     pub fn end(&self) {
         self.f.end();
         let size = self.f.children() - 1;
         for i in 0..=size {
             let child = self.f.child(i).unwrap();
             let mut child = button::RadioButton::from_dyn_widget(&child).unwrap();
-            child.set_callback(cb);
             child.clear_visible_focus();
+            child.set_callback(cb);
             if i == 0 {
                 child.set_frame(unsafe { std::mem::transmute(LEFT_RECT_UP) });
             } else if i == size {
@@ -319,7 +332,7 @@ impl RadioGroup {
 }
 
 fn cb(w: &mut impl ButtonExt) {
-    w.window().unwrap().redraw();
+    w.parent().unwrap().parent().unwrap().redraw();
 }
 
 fltk::widget_extends!(RadioGroup, group::Flex, f);
