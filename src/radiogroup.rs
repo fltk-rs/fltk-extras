@@ -1,6 +1,6 @@
 use crate::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
-use tiny_skia::{FillRule, LineCap, Paint, Path, PathBuilder, Pixmap, Stroke, Transform};
+use tiny_skia::{FillRule, Paint, Path, PathBuilder, Pixmap, Transform};
 use std::sync::atomic::{AtomicU8, Ordering};
 
 struct Position {
@@ -115,12 +115,13 @@ fn left_rect_up(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     let pb = PathBuilder::new();
     let path = rounded_rect(pb, w as _, h as _, [angle, 0., 0., angle]);
     let mut pixmap = Pixmap::new(w as _, h as _).unwrap();
-    let stroke = Stroke {
-        width: 2.0,
-        line_cap: LineCap::Round,
-        ..Default::default()
-    };
-    pixmap.stroke_path(&path, &paint, &stroke, Transform::identity(), None);
+    pixmap.fill_path(
+        &path,
+        &paint,
+        FillRule::Winding,
+        Transform::identity(),
+        None,
+    );
     let mut img = image::RgbImage::new(pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
     img.draw(x, y, w, h);
 }
@@ -130,7 +131,7 @@ fn left_rect_down(x: i32, y: i32, w: i32, h: i32, _c: Color) {
         return;
     }
     let c = SEL_BLUE;
-    let (r, g, b) = c.to_rgb();
+    let (r, g, b) = c.darker().to_rgb();
     let angle = ANGLE.load(Ordering::Relaxed) as f32;
     let mut paint = Paint::default();
     paint.set_color_rgba8(r, g, b, 255);
@@ -161,12 +162,13 @@ fn mid_rect_up(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     let pb = PathBuilder::new();
     let path = rounded_rect(pb, w as _, h as _, [0., 0., 0., 0.]);
     let mut pixmap = Pixmap::new(w as _, h as _).unwrap();
-    let stroke = Stroke {
-        width: 2.0,
-        line_cap: LineCap::Round,
-        ..Default::default()
-    };
-    pixmap.stroke_path(&path, &paint, &stroke, Transform::identity(), None);
+    pixmap.fill_path(
+        &path,
+        &paint,
+        FillRule::Winding,
+        Transform::identity(),
+        None,
+    );
     let mut img = image::RgbImage::new(pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
     img.draw(x, y, w, h);
 }
@@ -176,7 +178,7 @@ fn mid_rect_down(x: i32, y: i32, w: i32, h: i32, _c: Color) {
         return;
     }
     let c = SEL_BLUE;
-    let (r, g, b) = c.to_rgb();
+    let (r, g, b) = c.darker().to_rgb();
     let mut paint = Paint::default();
     paint.set_color_rgba8(r, g, b, 255);
     paint.anti_alias = true;
@@ -207,12 +209,13 @@ fn right_rect_up(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     let pb = PathBuilder::new();
     let path = rounded_rect(pb, w as _, h as _, [0., angle, angle, 0.]);
     let mut pixmap = Pixmap::new(w as _, h as _).unwrap();
-    let stroke = Stroke {
-        width: 2.0,
-        line_cap: LineCap::Round,
-        ..Default::default()
-    };
-    pixmap.stroke_path(&path, &paint, &stroke, Transform::identity(), None);
+    pixmap.fill_path(
+        &path,
+        &paint,
+        FillRule::Winding,
+        Transform::identity(),
+        None,
+    );
     let mut img = image::RgbImage::new(pixmap.data(), w, h, ColorDepth::Rgba8).unwrap();
     img.draw(x, y, w, h);
 }
@@ -222,7 +225,7 @@ fn right_rect_down(x: i32, y: i32, w: i32, h: i32, _c: Color) {
         return;
     }
     let c = SEL_BLUE;
-    let (r, g, b) = c.to_rgb();
+    let (r, g, b) = c.darker().to_rgb();
     let angle = ANGLE.load(Ordering::Relaxed) as f32;
     let mut paint = Paint::default();
     paint.set_color_rgba8(r, g, b, 255);
@@ -301,9 +304,10 @@ impl RadioGroup {
             4,
             4,
         );
-        let f = group::Flex::new(x, y, w, h, None)
+        let mut f = group::Flex::new(x, y, w, h, None)
             .with_label(label)
             .with_type(group::FlexType::Row);
+        f.set_pad(1);
         Self { f }
     }
     pub fn set_radius(&mut self, r: f32) {
