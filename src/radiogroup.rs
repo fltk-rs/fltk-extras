@@ -300,16 +300,12 @@ impl RadioGroup {
             let mut child = button::RadioButton::from_dyn_widget(&child).unwrap();
             child.clear_visible_focus();
             child.set_callback(cb);
-            if i == 0 {
-                unsafe {
+            unsafe {
+                if i == 0 {
                     Fl_Widget_set_box(child.as_widget_ptr() as _, LEFT_RECT_UP);
-                }
-            } else if i == size {
-                unsafe {
+                } else if i == size {
                     Fl_Widget_set_box(child.as_widget_ptr() as _, RIGHT_RECT_UP);
-                }
-            } else {
-                unsafe {
+                } else {
                     Fl_Widget_set_box(child.as_widget_ptr() as _, MID_RECT_UP);
                 }
             }
