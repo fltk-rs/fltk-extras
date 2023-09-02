@@ -1,6 +1,6 @@
 [package]
 name = "fltk-extras"
-version = "0.1.6"
+version = "0.1.7"
 authors = ["MoAlyousef <mohammed.alyousef@neurosrg.com>"]
 edition = "2021"
 rust-version = "1.56"
@@ -13,5 +13,6 @@ readme = "README.md"
 license = "MIT"
 
 [dependencies]
-fltk = "1.4.0"
+fltk = "1.4.6"
+fltk-sys = "1.4.6"
 tiny-skia = "0.11"

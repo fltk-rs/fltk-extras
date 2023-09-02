@@ -1,17 +1,42 @@
 use crate::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
+use fltk_sys::{fl::Fl_set_box_type_cb, widget::Fl_Widget_set_box};
+use std::{
+    mem,
+    sync::atomic::{AtomicU8, Ordering},
+};
 use tiny_skia::{FillRule, Paint, Path, PathBuilder, Pixmap, Transform};
-use std::sync::atomic::{AtomicU8, Ordering};
+
+const LEFT_RECT_UP: i32 = 100;
+const LEFT_RECT_DOWN: i32 = 101;
+const MID_RECT_UP: i32 = 102;
+const MID_RECT_DOWN: i32 = 103;
+const RIGHT_RECT_UP: i32 = 104;
+const RIGHT_RECT_DOWN: i32 = 105;
+
+static ANGLE: AtomicU8 = AtomicU8::new(15);
+
+// Necessary boilerplate to avoid UB in casting out of range enum value
+fn frame_cb(
+    old_frame: i32,
+    cb: fn(x: i32, y: i32, w: i32, h: i32, c: Color),
+    x: i32,
+    y: i32,
+    w: i32,
+    h: i32,
+) {
+    unsafe {
+        Fl_set_box_type_cb(old_frame, Some(mem::transmute(cb)), x, y, w, h);
+    }
+}
 
 struct Position {
     x: f32,
     y: f32,
 }
 
-static ANGLE: AtomicU8 = AtomicU8::new(15);
-
 // copied with some modification from: https://gitlab.com/snakedye/snui/-/blob/master/snui/src/widgets/shapes/rectangle.rs?ref_type=heads
-pub fn rounded_rect(mut pb: PathBuilder, width: f32, height: f32, radius: [f32; 4]) -> Path {
+fn rounded_rect(mut pb: PathBuilder, width: f32, height: f32, radius: [f32; 4]) -> Path {
     let (x, y) = (0., 0.);
     let mut cursor = Position { x: 0., y: 0. };
     let [tl, tr, br, bl] = radius;
@@ -94,13 +119,6 @@ pub fn rounded_rect(mut pb: PathBuilder, width: f32, height: f32, radius: [f32; 
     pb.close();
     pb.finish().unwrap()
 }
-
-const LEFT_RECT_UP: i32 = 100;
-const LEFT_RECT_DOWN: i32 = 101;
-const MID_RECT_UP: i32 = 102;
-const MID_RECT_DOWN: i32 = 103;
-const RIGHT_RECT_UP: i32 = 104;
-const RIGHT_RECT_DOWN: i32 = 105;
 
 fn left_rect_up(x: i32, y: i32, w: i32, h: i32, _c: Color) {
     if w < 1 || h < 1 {
@@ -256,54 +274,12 @@ impl Default for RadioGroup {
 
 impl RadioGroup {
     pub fn new(x: i32, y: i32, w: i32, h: i32, label: &str) -> Self {
-        app::set_frame_type_cb(
-            unsafe { std::mem::transmute(LEFT_RECT_UP) },
-            left_rect_up,
-            2,
-            2,
-            4,
-            4,
-        );
-        app::set_frame_type_cb(
-            unsafe { std::mem::transmute(LEFT_RECT_DOWN) },
-            left_rect_down,
-            2,
-            2,
-            4,
-            4,
-        );
-        app::set_frame_type_cb(
-            unsafe { std::mem::transmute(MID_RECT_UP) },
-            mid_rect_up,
-            2,
-            2,
-            4,
-            4,
-        );
-        app::set_frame_type_cb(
-            unsafe { std::mem::transmute(MID_RECT_DOWN) },
-            mid_rect_down,
-            2,
-            2,
-            4,
-            4,
-        );
-        app::set_frame_type_cb(
-            unsafe { std::mem::transmute(RIGHT_RECT_UP) },
-            right_rect_up,
-            2,
-            2,
-            4,
-            4,
-        );
-        app::set_frame_type_cb(
-            unsafe { std::mem::transmute(RIGHT_RECT_DOWN) },
-            right_rect_down,
-            2,
-            2,
-            4,
-            4,
-        );
+        frame_cb(LEFT_RECT_UP, left_rect_up, 2, 2, 4, 4);
+        frame_cb(LEFT_RECT_DOWN, left_rect_down, 2, 2, 4, 4);
+        frame_cb(MID_RECT_UP, mid_rect_up, 2, 2, 4, 4);
+        frame_cb(MID_RECT_DOWN, mid_rect_down, 2, 2, 4, 4);
+        frame_cb(RIGHT_RECT_UP, right_rect_up, 2, 2, 4, 4);
+        frame_cb(RIGHT_RECT_DOWN, right_rect_down, 2, 2, 4, 4);
         let mut f = group::Flex::new(x, y, w, h, None)
             .with_label(label)
             .with_type(group::FlexType::Row);
@@ -325,11 +301,17 @@ impl RadioGroup {
             child.clear_visible_focus();
             child.set_callback(cb);
             if i == 0 {
-                child.set_frame(unsafe { std::mem::transmute(LEFT_RECT_UP) });
+                unsafe {
+                    Fl_Widget_set_box(child.as_widget_ptr() as _, LEFT_RECT_UP);
+                }
             } else if i == size {
-                child.set_frame(unsafe { std::mem::transmute(RIGHT_RECT_UP) });
+                unsafe {
+                    Fl_Widget_set_box(child.as_widget_ptr() as _, RIGHT_RECT_UP);
+                }
             } else {
-                child.set_frame(unsafe { std::mem::transmute(MID_RECT_UP) })
+                unsafe {
+                    Fl_Widget_set_box(child.as_widget_ptr() as _, MID_RECT_UP);
+                }
             }
         }
     }
