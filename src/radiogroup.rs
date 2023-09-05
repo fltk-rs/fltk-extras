@@ -1,34 +1,16 @@
 use crate::styles::colors::*;
 use fltk::{enums::*, prelude::*, *};
-use fltk_sys::{fl::Fl_set_box_type_cb, widget::Fl_Widget_set_box};
-use std::{
-    mem,
-    sync::atomic::{AtomicU8, Ordering},
-};
+use std::sync::atomic::{AtomicU8, Ordering};
 use tiny_skia::{FillRule, Paint, Path, PathBuilder, Pixmap, Transform};
 
-const LEFT_RECT_UP: i32 = 100;
-const LEFT_RECT_DOWN: i32 = 101;
-const MID_RECT_UP: i32 = 102;
-const MID_RECT_DOWN: i32 = 103;
-const RIGHT_RECT_UP: i32 = 104;
-const RIGHT_RECT_DOWN: i32 = 105;
+const LEFT_RECT_UP: FrameType = FrameType::GleamUpBox;
+const LEFT_RECT_DOWN: FrameType = FrameType::GleamDownBox;
+const MID_RECT_UP: FrameType = FrameType::GleamUpFrame;
+const MID_RECT_DOWN: FrameType = FrameType::GleamDownFrame;
+const RIGHT_RECT_UP: FrameType = FrameType::GleamThinUpBox;
+const RIGHT_RECT_DOWN: FrameType = FrameType::GleamThinDownBox;
 
 static ANGLE: AtomicU8 = AtomicU8::new(15);
-
-// Necessary boilerplate to avoid UB in casting out of range enum value
-fn frame_cb(
-    old_frame: i32,
-    cb: fn(x: i32, y: i32, w: i32, h: i32, c: Color),
-    x: i32,
-    y: i32,
-    w: i32,
-    h: i32,
-) {
-    unsafe {
-        Fl_set_box_type_cb(old_frame, Some(mem::transmute(cb)), x, y, w, h);
-    }
-}
 
 struct Position {
     x: f32,
@@ -274,12 +256,12 @@ impl Default for RadioGroup {
 
 impl RadioGroup {
     pub fn new(x: i32, y: i32, w: i32, h: i32, label: &str) -> Self {
-        frame_cb(LEFT_RECT_UP, left_rect_up, 2, 2, 4, 4);
-        frame_cb(LEFT_RECT_DOWN, left_rect_down, 2, 2, 4, 4);
-        frame_cb(MID_RECT_UP, mid_rect_up, 2, 2, 4, 4);
-        frame_cb(MID_RECT_DOWN, mid_rect_down, 2, 2, 4, 4);
-        frame_cb(RIGHT_RECT_UP, right_rect_up, 2, 2, 4, 4);
-        frame_cb(RIGHT_RECT_DOWN, right_rect_down, 2, 2, 4, 4);
+        app::set_frame_type_cb(LEFT_RECT_UP, left_rect_up, 2, 2, 4, 4);
+        app::set_frame_type_cb(LEFT_RECT_DOWN, left_rect_down, 2, 2, 4, 4);
+        app::set_frame_type_cb(MID_RECT_UP, mid_rect_up, 2, 2, 4, 4);
+        app::set_frame_type_cb(MID_RECT_DOWN, mid_rect_down, 2, 2, 4, 4);
+        app::set_frame_type_cb(RIGHT_RECT_UP, right_rect_up, 2, 2, 4, 4);
+        app::set_frame_type_cb(RIGHT_RECT_DOWN, right_rect_down, 2, 2, 4, 4);
         let mut f = group::Flex::new(x, y, w, h, None)
             .with_label(label)
             .with_type(group::FlexType::Row);
@@ -300,14 +282,12 @@ impl RadioGroup {
             let mut child = button::RadioButton::from_dyn_widget(&child).unwrap();
             child.clear_visible_focus();
             child.set_callback(cb);
-            unsafe {
-                if i == 0 {
-                    Fl_Widget_set_box(child.as_widget_ptr() as _, LEFT_RECT_UP);
-                } else if i == size {
-                    Fl_Widget_set_box(child.as_widget_ptr() as _, RIGHT_RECT_UP);
-                } else {
-                    Fl_Widget_set_box(child.as_widget_ptr() as _, MID_RECT_UP);
-                }
+            if i == 0 {
+                child.set_frame(LEFT_RECT_UP);
+            } else if i == size {
+                child.set_frame(RIGHT_RECT_UP);
+            } else {
+                child.set_frame(MID_RECT_UP);
             }
         }
     }
